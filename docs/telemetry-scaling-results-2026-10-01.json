@@ -1,0 +1,38 @@
+{
+  "scope": {
+    "vehicleId": "vehicle-00001",
+    "topic": "fleet/vehicles/vehicle-00001/telemetry",
+    "transport": "MQTT over TLS with QoS 1",
+    "pipeline": "AWS IoT Core -> IoT rule -> SQS -> ECS telemetry service -> MongoDB Atlas"
+  },
+  "stages": [
+    {
+      "messages": 50,
+      "intervalMs": 20,
+      "durationMs": 13376.77,
+      "publishRatePerSecond": 3.74
+    },
+    {
+      "messages": 100,
+      "intervalMs": 0,
+      "durationMs": 26700.57,
+      "publishRatePerSecond": 3.75
+    },
+    {
+      "messages": 200,
+      "intervalMs": 0,
+      "durationMs": 52666.44,
+      "publishRatePerSecond": 3.8
+    }
+  ],
+  "verification": {
+    "messagesPublished": 350,
+    "documentsPersisted": 350,
+    "latestPublishedTimestamp": "2026-09-30T16:06:53.475Z",
+    "latestPersistedTimestamp": "2026-09-30T16:06:53.475Z",
+    "sqsVisibleAfterTest": 0,
+    "sqsInFlightAfterTest": 0,
+    "maximumTelemetryServiceCpuPct": 7.609
+  },
+  "limitation": "The Thing policy binds this certificate and MQTT client ID to vehicle-00001. This is a single authenticated vehicle message-rate test, not a 500-to-5,000 vehicle identity test."
+}

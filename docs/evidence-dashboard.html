@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIT314 Cloud Deployment Evidence</title>
+  <style>
+    :root { color-scheme: light; --ink:#111; --muted:#5b5b5b; --line:#c8c8c8; --soft:#f3f3f3; --ok:#1f6f3d; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#fff; color:var(--ink); font:16px/1.45 Arial, sans-serif; }
+    main { width:1180px; margin:0 auto; padding:36px 42px 42px; }
+    h1 { margin:0; font-size:34px; letter-spacing:-.5px; }
+    .subtitle { color:var(--muted); margin:5px 0 26px; }
+    .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    .card { border:1px solid var(--line); border-radius:8px; padding:18px; min-height:112px; }
+    .card strong { display:block; font-size:28px; margin-top:5px; }
+    .label { color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.8px; }
+    .ok { color:var(--ok); font-weight:bold; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:22px; }
+    section { border-top:3px solid var(--ink); padding-top:12px; }
+    h2 { font-size:20px; margin:0 0 12px; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th,td { text-align:left; border-bottom:1px solid var(--line); padding:9px 7px; }
+    th { background:var(--soft); }
+    .bar-row { display:grid; grid-template-columns:90px 1fr 85px; gap:9px; align-items:center; margin:13px 0; font-size:14px; }
+    .track { height:18px; background:var(--soft); border:1px solid var(--line); }
+    .fill { height:100%; background:#222; }
+    .note { margin-top:18px; padding:12px 14px; background:var(--soft); border-left:4px solid var(--ink); font-size:14px; }
+    footer { margin-top:22px; color:var(--muted); font-size:12px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>SIT314 Ride-Matching System — Deployment Evidence</h1>
+  <p class="subtitle">Verified 1 October 2026 · AWS us-east-1 · MongoDB Atlas · MQTT/TLS</p>
+  <div class="cards">
+    <div class="card"><span class="label">ECS services</span><strong>4 / 4</strong><span class="ok">Running</span></div>
+    <div class="card"><span class="label">HTTP load test</span><strong>4,200</strong><span class="ok">100% successful</span></div>
+    <div class="card"><span class="label">Telemetry persistence</span><strong>350 / 350</strong><span class="ok">Verified in Atlas</span></div>
+    <div class="card"><span class="label">SQS backlog after test</span><strong>0</strong><span class="ok">Visible / in-flight</span></div>
+  </div>
+  <div class="grid">
+    <section>
+      <h2>ECS deployment status</h2>
+      <table>
+        <thead><tr><th>Service</th><th>Task definition</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>api-service</td><td>ride-matching-api:3</td><td class="ok">1 / 1 running</td></tr>
+          <tr><td>matching-service</td><td>ride-matching-matcher:2</td><td class="ok">1 / 1 running</td></tr>
+          <tr><td>telemetry-service</td><td>ride-matching-telemetry</td><td class="ok">1 / 1 running</td></tr>
+          <tr><td>trip-service</td><td>ride-matching-trips:2</td><td class="ok">1 / 1 running</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><b>REST API:</b> ALB health endpoint returned HTTP 200. Authenticated ride request <code>1987f08f…</code> completed with vehicle <code>vehicle-00001</code>.</div>
+    </section>
+    <section>
+      <h2>HTTP throughput by concurrency</h2>
+      <div class="bar-row"><span>20 clients</span><div class="track"><div class="fill" style="width:17.6%"></div></div><b>63.4 r/s</b></div>
+      <div class="bar-row"><span>50 clients</span><div class="track"><div class="fill" style="width:45.1%"></div></div><b>162.4 r/s</b></div>
+      <div class="bar-row"><span>100 clients</span><div class="track"><div class="fill" style="width:100%"></div></div><b>360.3 r/s</b></div>
+      <table>
+        <thead><tr><th>Requests</th><th>Success</th><th>p50</th><th>p95</th><th>p99</th></tr></thead>
+        <tbody>
+          <tr><td>200</td><td>100%</td><td>294 ms</td><td>514 ms</td><td>519 ms</td></tr>
+          <tr><td>1,000</td><td>100%</td><td>244 ms</td><td>531 ms</td><td>1,228 ms</td></tr>
+          <tr><td>3,000</td><td>100%</td><td>276 ms</td><td>474 ms</td><td>523 ms</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <div class="grid">
+    <section>
+      <h2>Telemetry pipeline</h2>
+      <p>Simulator → MQTT/TLS → AWS IoT Core → IoT rule → SQS → ECS telemetry service → MongoDB Atlas</p>
+      <table>
+        <tbody>
+          <tr><th>Messages published</th><td>350</td></tr>
+          <tr><th>Documents persisted</th><td class="ok">350</td></tr>
+          <tr><th>Maximum telemetry CPU</th><td>7.609%</td></tr>
+          <tr><th>Final queue backlog</th><td class="ok">0</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Database and queue verification</h2>
+      <p><b>MongoDB Atlas:</b> <code>vehicles_live</code>, <code>position_history</code>, <code>rides</code> and <code>trips</code> received the expected updates.</p>
+      <p><b>SQS:</b> <code>telemetry-ingest</code>, <code>ride-requests</code> and <code>trip-events</code> all returned to zero visible and zero in-flight messages.</p>
+      <p><b>Node-RED:</b> MQTT subscription connected at QoS 1; valid and invalid telemetry were routed to separate debug outputs.</p>
+    </section>
+  </div>
+  <footer>Source: recorded deployment checks and load-test results in docs/evidence-2026-09-30.md and JSON result files.</footer>
+</main>
+</body>
+</html>

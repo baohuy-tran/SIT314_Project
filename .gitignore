@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+.aws/
+aws_credentials*
+
+# AWS IoT certificates and private keys
+certs/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Logs and test output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+.nyc_output/
+
+# Generated build and runtime files
+dist/
+build/
+tmp/
+.cache/
+*.pid
+*.seed
+
+# Local Node-RED state and credentials
+.node-red/
+node-red/.config.*.json
+node-red/.sessions.json
+node-red/context/
+node-red/flows_cred.json
+node-red/.config.nodes.json
+node-red/.config.runtime.json
+node-red/.config.users.json
+node-red/*.backup
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+~$*.docx

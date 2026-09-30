@@ -1,0 +1,71 @@
+x-app: &app
+  build: .
+  restart: unless-stopped
+  environment: &app-env
+    MONGO_URI: mongodb://mongo:27017
+    MONGO_DB: ride_matching
+    MQTT_URL: mqtt://mqtt:1883
+    BATCH_WINDOW_MS: 2000
+    MAX_MATCH_DISTANCE_KM: 8
+    ETA_AVERAGE_SPEED_KMH: 30
+  depends_on:
+    mongo:
+      condition: service_healthy
+    mqtt:
+      condition: service_started
+
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./infra/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  node-red:
+    image: nodered/node-red:latest
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    environment:
+      TZ: Australia/Melbourne
+    volumes:
+      - ./node-red:/data
+    depends_on:
+      mqtt:
+        condition: service_started
+
+  api:
+    <<: *app
+    command: node src/services/api.js
+    ports:
+      - "3000:3000"
+
+  telemetry:
+    <<: *app
+    command: node src/services/telemetry-service.js
+
+  matcher:
+    <<: *app
+    command: node src/services/matching-service.js
+
+  trips:
+    <<: *app
+    command: node src/services/trip-service.js
+
+volumes:
+  mongo-data:

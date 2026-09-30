@@ -1,0 +1,39 @@
+{
+  "target": "http://ride-matching-api-alb-1046394833.us-east-1.elb.amazonaws.com/health",
+  "stages": [
+    {
+      "requests": 200,
+      "concurrency": 20,
+      "successRatePct": 100,
+      "requestsPerSecond": 63.4,
+      "latencyMs": { "p50": 294.29, "p95": 513.92, "p99": 518.83 }
+    },
+    {
+      "requests": 1000,
+      "concurrency": 50,
+      "successRatePct": 100,
+      "requestsPerSecond": 162.4,
+      "latencyMs": { "p50": 243.95, "p95": 531.48, "p99": 1227.76 }
+    },
+    {
+      "requests": 3000,
+      "concurrency": 100,
+      "successRatePct": 100,
+      "requestsPerSecond": 360.33,
+      "latencyMs": { "p50": 275.55, "p95": 474.09, "p99": 523.09 }
+    }
+  ],
+  "cloudWatch": {
+    "albRequestCountByLoadMinute": [1200, 3000],
+    "albAverageTargetResponseTimeMs": [3.508, 3.964],
+    "albMaximumTargetResponseTimeMs": [61.426, 44.154],
+    "maximumApiCpuUtilizationPct": 7.071,
+    "apiDesiredTasksAfterTest": 1,
+    "apiRunningTasksAfterTest": 1
+  },
+  "sqsAfterTest": {
+    "telemetry-ingest": { "visible": 0, "inFlight": 0 },
+    "ride-requests": { "visible": 0, "inFlight": 0 },
+    "trip-events": { "visible": 0, "inFlight": 0 }
+  }
+}

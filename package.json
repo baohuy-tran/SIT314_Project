@@ -1,0 +1,36 @@
+{
+  "name": "scalable-ride-matching-system",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first implementation of the event-driven driverless taxi architecture described in Doc2.pdf",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "api": "node src/services/api.js",
+    "telemetry": "node src/services/telemetry-service.js",
+    "matcher": "node src/services/matching-service.js",
+    "trips": "node src/services/trip-service.js",
+    "simulator": "node src/simulator/vehicle-simulator.js",
+    "generate:rides": "node src/simulator/ride-generator.js",
+    "load": "node src/simulator/load-profile.js",
+    "load:http": "node src/tools/http-load.js",
+    "load:telemetry": "node --env-file=.env src/tools/telemetry-load.js",
+    "verify:telemetry": "node --env-file=.env src/tools/verify-telemetry-pipeline.js",
+    "test": "node --test",
+    "test:integration": "RUN_INTEGRATION=1 node --test test/integration/*.test.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-iot-data-plane": "^3.1133.0",
+    "@aws-sdk/client-sns": "^3.1133.0",
+    "@aws-sdk/client-sqs": "^3.1133.0",
+    "express": "^5.1.0",
+    "h3-js": "^4.3.0",
+    "mongodb": "^6.20.0",
+    "mqtt": "^5.14.1",
+    "pino": "^9.9.0",
+    "prom-client": "^15.1.3",
+    "zod": "^4.1.12"
+  }
+}
